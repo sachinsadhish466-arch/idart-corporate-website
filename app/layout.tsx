@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import FloatingActionButtons from "@/components/layout/FloatingActionButtons";
 import ScrollToTop from "@/components/layout/ScrollToTop";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export const metadata: Metadata = {
   title: "AGTRS IDART PRIVATE LIMITED | LPG Safety, Pipelines & Engineering Solutions",
@@ -41,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -50,7 +51,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#060D17] text-slate-100 antialiased font-sans selection:bg-orange-500 selection:text-white">
+      <body className="min-h-screen flex flex-col bg-white text-slate-900 antialiased font-sans selection:bg-orange-500 selection:text-white">
+        <LoadingScreen />
         <AnnouncementBar />
         <Navbar />
         <main className="flex-1 w-full">{children}</main>

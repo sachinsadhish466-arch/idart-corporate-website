@@ -1,331 +1,448 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Building2, Users, Shield, ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { BRANCH_DATA } from "../../data/branches";
+import { MapPin, Phone, Mail, Navigation, Search, CheckCircle2, Globe2, Building2, ShieldCheck, ArrowRight } from "lucide-react";
 
-interface StateNode {
+interface RegionInfo {
   id: string;
   name: string;
-  status: "Active Network" | "Expansion State";
-  branchesCount: string;
-  distributors: string;
-  headquartersOrHub: string;
+  status: "Operational" | "Expansion";
+  branchesVerified: number;
+  hubCity: string;
+  districts: string[];
+  services: string[];
   color: string;
 }
 
-const REGION_DATA: StateNode[] = [
+const REGIONS: RegionInfo[] = [
   {
-    id: "tn",
+    id: "tamil-nadu",
     name: "Tamil Nadu",
-    status: "Active Network",
-    branchesCount: "180+ Branches",
-    distributors: "1,450+ Distributors",
-    headquartersOrHub: "Coimbatore Corporate HQ & Vadavalli RO",
-    color: "#ff6600"
+    status: "Operational",
+    branchesVerified: 284,
+    hubCity: "Coimbatore (HQ) / Chennai",
+    districts: ["Coimbatore", "Chennai", "Madurai", "Tiruchirappalli", "Salem", "Tirupur", "Erode", "Dindigul", "Vellore", "Tirunelveli"],
+    services: ["LPG Mandatory Inspection", "Copper Pipeline Grid", "Turnkey Kitchen Manifolds", "Industrial Roof Truss", "24/7 Leak Response"],
+    color: "#FF6600"
   },
   {
-    id: "ap",
-    name: "Andhra Pradesh",
-    status: "Active Network",
-    branchesCount: "95+ Branches",
-    distributors: "780+ Distributors",
-    headquartersOrHub: "Chittoor Regional Office & Tirupati Hub",
-    color: "#ff6600"
-  },
-  {
-    id: "kl",
+    id: "kerala",
     name: "Kerala",
-    status: "Active Network",
-    branchesCount: "85+ Branches",
-    distributors: "640+ Distributors",
-    headquartersOrHub: "Kochi Marine Hub & Trivandrum Center",
-    color: "#ff6600"
+    status: "Operational",
+    branchesVerified: 96,
+    hubCity: "Kochi / Palakkad / Trivandrum",
+    districts: ["Ernakulam", "Palakkad", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Kollam", "Kannur"],
+    services: ["Reticulated LPG Systems", "Safety Certification", "Commercial Kitchens", "Roofing Solutions"],
+    color: "#2563EB"
   },
   {
-    id: "tg",
+    id: "andhra-pradesh",
+    name: "Andhra Pradesh",
+    status: "Operational",
+    branchesVerified: 48,
+    hubCity: "Visakhapatnam / Vijayawada",
+    districts: ["Visakhapatnam", "Krishna (Vijayawada)", "Guntur", "Tirupati", "Chittoor", "Kurnool"],
+    services: ["Commercial Gas Pipeline", "Safety Auditing", "Industrial Manifold Engineering"],
+    color: "#059669"
+  },
+  {
+    id: "telangana",
     name: "Telangana",
-    status: "Active Network",
-    branchesCount: "60+ Branches",
-    distributors: "490+ Distributors",
-    headquartersOrHub: "Hyderabad Hitech City & Warangal Hub",
-    color: "#ff6600"
+    status: "Operational",
+    branchesVerified: 22,
+    hubCity: "Hyderabad",
+    districts: ["Hyderabad", "Ranga Reddy", "Medchal-Malkajgiri", "Warangal"],
+    services: ["Commercial Kitchen Piping", "High-Pressure LPG Manifolds", "Distributor Safety Network"],
+    color: "#7C3AED"
   },
   {
-    id: "py",
+    id: "puducherry",
     name: "Puducherry",
-    status: "Active Network",
-    branchesCount: "12+ Branches",
-    distributors: "85+ Distributors",
-    headquartersOrHub: "Puducherry Coastal Operations Center",
-    color: "#ff6600"
+    status: "Operational",
+    branchesVerified: 7,
+    hubCity: "Puducherry City",
+    districts: ["Puducherry", "Karaikal"],
+    services: ["Home Inspection", "Commercial Gas Pipeline", "Safety Certification"],
+    color: "#EA580C"
   },
   {
-    id: "ka",
+    id: "karnataka",
     name: "Karnataka",
-    status: "Expansion State",
-    branchesCount: "15+ Hubs",
-    distributors: "140+ Distributors",
-    headquartersOrHub: "Bengaluru Tech Corridor & Mysuru Branch",
-    color: "#3b82f6"
+    status: "Expansion",
+    branchesVerified: 0,
+    hubCity: "Bengaluru (Corridor Hub)",
+    districts: ["Bengaluru Urban", "Mysuru", "Mangaluru", "Hubballi"],
+    services: ["Pipeline Infrastructure Pre-Deployment", "Corporate Partnerships"],
+    color: "#64748B"
   },
   {
-    id: "mh",
+    id: "maharashtra",
     name: "Maharashtra",
-    status: "Expansion State",
-    branchesCount: "5+ Hubs",
-    distributors: "50+ Distributors",
-    headquartersOrHub: "Pune Industrial Node Hub",
-    color: "#3b82f6"
+    status: "Expansion",
+    branchesVerified: 0,
+    hubCity: "Pune / Mumbai",
+    districts: ["Pune Industrial Belt", "Mumbai Metropolitan"],
+    services: ["Industrial Gas Solutions Setup", "Regional Distributor Alliances"],
+    color: "#64748B"
   },
   {
-    id: "od",
-    name: "Odisha",
-    status: "Expansion State",
-    branchesCount: "3+ Hubs",
-    distributors: "30+ Distributors",
-    headquartersOrHub: "Bhubaneswar Smart Hub",
-    color: "#3b82f6"
-  },
-  {
-    id: "mp",
+    id: "madhya-pradesh",
     name: "Madhya Pradesh",
-    status: "Expansion State",
-    branchesCount: "2+ Hubs",
-    distributors: "22+ Distributors",
-    headquartersOrHub: "Indore Central Gateway Node",
-    color: "#3b82f6"
+    status: "Expansion",
+    branchesVerified: 0,
+    hubCity: "Indore / Bhopal",
+    districts: ["Indore", "Bhopal"],
+    services: ["Industrial Pipeline Planning"],
+    color: "#64748B"
+  },
+  {
+    id: "odisha",
+    name: "Odisha",
+    status: "Expansion",
+    branchesVerified: 0,
+    hubCity: "Bhubaneswar",
+    districts: ["Bhubaneswar", "Cuttack"],
+    services: ["Coastal Industrial Expansion Survey"],
+    color: "#64748B"
   }
 ];
 
 export default function SouthIndiaMap() {
-  const [selectedState, setSelectedState] = useState<StateNode>(REGION_DATA[0]);
+  const [selectedRegion, setSelectedRegion] = useState<RegionInfo>(REGIONS[0]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<"Operational" | "Expansion">("Operational");
+
+  const filteredBranches = BRANCH_DATA.filter((branch) => {
+    const matchesSearch =
+      branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      branch.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      branch.district.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      branch.state.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  });
 
   return (
-    <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-10 shadow-2xl overflow-hidden relative">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        {/* Interactive SVG Map Visualizer */}
-        <div className="lg:col-span-7 relative flex flex-col items-center justify-center min-h-[420px] bg-slate-950/60 rounded-2xl border border-slate-800/80 p-6">
-          <div className="absolute top-4 left-4 flex items-center gap-4 text-xs">
-            <span className="flex items-center gap-1.5 text-orange-400 font-semibold">
-              <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
-              Active Network
-            </span>
-            <span className="flex items-center gap-1.5 text-blue-400 font-semibold">
-              <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-              Expansion Territory
-            </span>
+    <div className="w-full bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+      {/* Top Header & Search Bar */}
+      <div className="p-6 border-b border-slate-100 bg-slate-50/60">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
+              <span className="text-xs font-mono font-bold tracking-widest text-orange-600 uppercase">
+                GEOGRAPHIC INFRASTRUCTURE
+              </span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+              South India Operational Network & Expansion Corridors
+            </h3>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Verified operational centers in Tamil Nadu, Kerala, Andhra Pradesh, Telangana & Puducherry.
+            </p>
           </div>
 
-          {/* SVG Map Layout representing South India geography and network arcs */}
-          <svg viewBox="0 0 600 500" className="w-full h-auto max-h-[380px] drop-shadow-2xl">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Status Filter Toggle */}
+            <div className="inline-flex rounded-lg border border-slate-200 p-1 bg-white">
+              <button
+                onClick={() => setActiveTab("Operational")}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${
+                  activeTab === "Operational"
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Active Hubs (5)
+              </button>
+              <button
+                onClick={() => setActiveTab("Expansion")}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${
+                  activeTab === "Expansion"
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Expansion Corridors (4)
+              </button>
+            </div>
+
+            {/* Quick Search */}
+            <div className="relative min-w-[240px]">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search city, district, branch..."
+                className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Grid: Interactive Map (Left) + Region/Branch Details (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
+        {/* Left Column: Interactive Map Graphic */}
+        <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col items-center justify-center relative bg-gradient-to-br from-slate-50/50 via-white to-orange-50/20 min-h-[460px]">
+          {/* Engineering Coordinate Watermark */}
+          <div className="absolute top-4 left-4 text-[10px] font-mono text-slate-400">
+            [GRID-REF: SOUTH-IN-REG-V26] • 08°04'N to 19°54'N
+          </div>
+
+          {/* SVG Map Illustration of South India */}
+          <svg className="w-full max-w-[480px] h-auto" viewBox="0 0 500 520" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="netGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#ff6600" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.8" />
+              <linearGradient id="activeStateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFF7ED" />
+                <stop offset="100%" stopColor="#FED7AA" />
               </linearGradient>
-              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
             </defs>
 
-            {/* Connecting network pipelines between cities */}
-            <path d="M 220 370 L 320 350 L 300 270 L 260 210 L 370 190 L 190 290 Z" fill="none" stroke="url(#netGrad)" strokeWidth="1.5" strokeDasharray="4 4" className="pipeline-dash opacity-70" />
-            <path d="M 220 370 L 160 410 L 180 470 L 250 450 L 320 350" fill="none" stroke="#ff6600" strokeWidth="2" strokeOpacity="0.5" />
-            <path d="M 260 210 L 220 120 L 340 70" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
-            <path d="M 370 190 L 460 130" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
+            {/* Expansion State Background Shapes */}
+            {/* Maharashtra */}
+            <path
+              d="M 120 70 L 260 60 L 290 130 L 160 160 Z"
+              fill="#F8FAFC"
+              stroke="#E2E8F0"
+              strokeWidth="1.5"
+              strokeDasharray="4 3"
+              className="cursor-pointer hover:fill-slate-100 transition-colors"
+              onClick={() => setSelectedRegion(REGIONS.find(r => r.id === "maharashtra")!)}
+            />
+            <text x="180" y="110" fill="#94A3B8" fontSize="11" fontWeight="600">Maharashtra (Exp)</text>
 
-            {/* Coimbatore - Corporate Head Office (Star Node) */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[0])}
-            >
-              <circle cx="220" cy="370" r="16" fill="#ff6600" fillOpacity="0.25" className="animate-ping" />
-              <circle cx="220" cy="370" r="10" fill="#ff6600" filter="url(#glow)" />
-              <circle cx="220" cy="370" r="4" fill="#ffffff" />
-              <text x="140" y="365" fill="#ffffff" fontSize="12" fontWeight="bold">Coimbatore (HQ)</text>
-              <text x="145" y="380" fill="#ff9944" fontSize="10">Corporate Head Office</text>
+            {/* Telangana */}
+            <path
+              d="M 230 140 L 340 130 L 350 220 L 250 230 Z"
+              fill={selectedRegion.id === "telangana" ? "#EDE9FE" : "#F8FAFC"}
+              stroke={selectedRegion.id === "telangana" ? "#7C3AED" : "#CBD5E1"}
+              strokeWidth="2"
+              className="cursor-pointer transition-all"
+              onClick={() => setSelectedRegion(REGIONS.find(r => r.id === "telangana")!)}
+            />
+            <text x="260" y="180" fill="#475569" fontSize="12" fontWeight="700">Telangana</text>
+
+            {/* Andhra Pradesh */}
+            <path
+              d="M 270 230 L 390 190 L 440 280 L 340 340 L 260 280 Z"
+              fill={selectedRegion.id === "andhra-pradesh" ? "#ECFDF5" : "#F8FAFC"}
+              stroke={selectedRegion.id === "andhra-pradesh" ? "#059669" : "#CBD5E1"}
+              strokeWidth="2"
+              className="cursor-pointer transition-all"
+              onClick={() => setSelectedRegion(REGIONS.find(r => r.id === "andhra-pradesh")!)}
+            />
+            <text x="320" y="270" fill="#334155" fontSize="12" fontWeight="700">Andhra Pradesh</text>
+
+            {/* Karnataka */}
+            <path
+              d="M 150 170 L 240 180 L 230 330 L 140 310 Z"
+              fill={selectedRegion.id === "karnataka" ? "#F1F5F9" : "#F8FAFC"}
+              stroke={selectedRegion.id === "karnataka" ? "#64748B" : "#E2E8F0"}
+              strokeWidth="1.5"
+              strokeDasharray="4 3"
+              className="cursor-pointer transition-all"
+              onClick={() => setSelectedRegion(REGIONS.find(r => r.id === "karnataka")!)}
+            />
+            <text x="160" y="250" fill="#94A3B8" fontSize="11" fontWeight="600">Karnataka (Exp)</text>
+
+            {/* Kerala */}
+            <path
+              d="M 170 340 L 205 340 L 220 480 L 195 490 Z"
+              fill={selectedRegion.id === "kerala" ? "#EFF6FF" : "#F8FAFC"}
+              stroke={selectedRegion.id === "kerala" ? "#2563EB" : "#CBD5E1"}
+              strokeWidth="2"
+              className="cursor-pointer transition-all"
+              onClick={() => setSelectedRegion(REGIONS.find(r => r.id === "kerala")!)}
+            />
+            <text x="140" y="420" fill="#1D4ED8" fontSize="12" fontWeight="700">Kerala</text>
+
+            {/* Tamil Nadu (Core Operational Heart) */}
+            <path
+              d="M 215 330 L 320 330 L 330 420 L 270 500 L 210 440 Z"
+              fill={selectedRegion.id === "tamil-nadu" ? "url(#activeStateGrad)" : "#FFF7ED"}
+              stroke={selectedRegion.id === "tamil-nadu" ? "#FF6600" : "#FB923C"}
+              strokeWidth="2.5"
+              className="cursor-pointer transition-all"
+              onClick={() => setSelectedRegion(REGIONS.find(r => r.id === "tamil-nadu")!)}
+            />
+            <text x="240" y="390" fill="#C2410C" fontSize="14" fontWeight="800">TAMIL NADU</text>
+            <text x="250" y="408" fill="#FF6600" fontSize="10" fontWeight="700">(284+ Branches)</text>
+
+            {/* Puducherry Dot */}
+            <circle cx="325" cy="370" r="5" fill="#FF6600" className="cursor-pointer" onClick={() => setSelectedRegion(REGIONS.find(r => r.id === "puducherry")!)} />
+            <text x="335" y="373" fill="#FF6600" fontSize="10" fontWeight="700">Puducherry</text>
+
+            {/* Animated Transmission Flow Lines (Coimbatore -> Chennai -> Madurai -> Tiruchirappalli -> Kerala -> Andhra) */}
+            <path
+              d="M 225 390 L 310 340 L 270 380 L 250 440 L 200 420 L 310 260"
+              fill="none"
+              stroke="#FF6600"
+              strokeWidth="2"
+              strokeDasharray="6 4"
+              className="animate-pipeline-flow opacity-70"
+            />
+
+            {/* City Network Hub Nodes */}
+            <g transform="translate(225, 390)" className="cursor-pointer">
+              <circle r="12" fill="#FF6600" opacity="0.2" className="animate-ping" />
+              <circle r="6" fill="#FF6600" />
+              <circle r="2.5" fill="#FFFFFF" />
+              <text x="8" y="4" fill="#0F172A" fontSize="11" fontWeight="800">Coimbatore (HQ)</text>
             </g>
 
-            {/* Chennai Hub */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[0])}
-            >
-              <circle cx="330" cy="320" r="7" fill="#ff6600" />
-              <text x="345" y="325" fill="#e2e8f0" fontSize="11" fontWeight="600">Chennai</text>
+            <g transform="translate(310, 340)" className="cursor-pointer">
+              <circle r="5" fill="#FF6600" />
+              <circle r="2" fill="#FFFFFF" />
+              <text x="8" y="4" fill="#334155" fontSize="10" fontWeight="700">Chennai</text>
             </g>
 
-            {/* Chittoor - Andhra Pradesh Regional Office */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[1])}
-            >
-              <circle cx="300" cy="270" r="12" fill="#ff6600" fillOpacity="0.3" className="animate-pulse" />
-              <circle cx="300" cy="270" r="8" fill="#ff6600" />
-              <circle cx="300" cy="270" r="3" fill="#ffffff" />
-              <text x="315" y="275" fill="#ffffff" fontSize="11" fontWeight="bold">Chittoor (AP RO)</text>
+            <g transform="translate(250, 440)" className="cursor-pointer">
+              <circle r="4.5" fill="#FF6600" />
+              <text x="7" y="3" fill="#334155" fontSize="10" fontWeight="600">Madurai</text>
             </g>
 
-            {/* Vijayawada & Vizag */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[1])}
-            >
-              <circle cx="370" cy="210" r="7" fill="#ff6600" />
-              <text x="385" y="215" fill="#cbd5e1" fontSize="10">Vijayawada</text>
+            <g transform="translate(270, 380)" className="cursor-pointer">
+              <circle r="4.5" fill="#FF6600" />
+              <text x="7" y="3" fill="#334155" fontSize="10" fontWeight="600">Tiruchirappalli</text>
             </g>
 
-            {/* Kochi & Thiruvananthapuram - Kerala */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[2])}
-            >
-              <circle cx="170" cy="420" r="7" fill="#ff6600" />
-              <text x="105" y="425" fill="#e2e8f0" fontSize="11" fontWeight="600">Kochi</text>
-              <circle cx="190" cy="470" r="6" fill="#ff6600" />
-              <text x="120" y="475" fill="#cbd5e1" fontSize="10">Trivandrum</text>
+            <g transform="translate(200, 420)" className="cursor-pointer">
+              <circle r="5" fill="#2563EB" />
+              <circle r="2" fill="#FFFFFF" />
+              <text x="-65" y="4" fill="#1E40AF" fontSize="10" fontWeight="700">Kochi / Palakkad</text>
             </g>
 
-            {/* Hyderabad - Telangana */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[3])}
-            >
-              <circle cx="260" cy="180" r="8" fill="#ff6600" />
-              <text x="275" y="185" fill="#ffffff" fontSize="11" fontWeight="600">Hyderabad</text>
+            <g transform="translate(280, 190)" className="cursor-pointer">
+              <circle r="5" fill="#7C3AED" />
+              <circle r="2" fill="#FFFFFF" />
+              <text x="8" y="4" fill="#5B21B6" fontSize="10" fontWeight="700">Hyderabad</text>
             </g>
 
-            {/* Puducherry */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[4])}
-            >
-              <circle cx="320" cy="355" r="6" fill="#ff6600" />
-              <text x="335" y="360" fill="#cbd5e1" fontSize="10">Puducherry</text>
-            </g>
-
-            {/* Bengaluru - Karnataka */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[5])}
-            >
-              <circle cx="220" cy="280" r="7" fill="#3b82f6" />
-              <text x="155" y="285" fill="#93c5fd" fontSize="10">Bengaluru</text>
-            </g>
-
-            {/* Pune / Maharashtra */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[6])}
-            >
-              <circle cx="170" cy="130" r="6" fill="#3b82f6" />
-              <text x="120" y="135" fill="#93c5fd" fontSize="10">Pune</text>
-            </g>
-
-            {/* Odisha - Bhubaneswar */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[7])}
-            >
-              <circle cx="460" cy="130" r="6" fill="#3b82f6" />
-              <text x="400" y="125" fill="#93c5fd" fontSize="10">Bhubaneswar</text>
-            </g>
-
-            {/* Madhya Pradesh - Indore */}
-            <g
-              className="cursor-pointer transition-transform hover:scale-110"
-              onClick={() => setSelectedState(REGION_DATA[8])}
-            >
-              <circle cx="220" cy="70" r="6" fill="#3b82f6" />
-              <text x="175" y="75" fill="#93c5fd" fontSize="10">Indore</text>
+            <g transform="translate(360, 240)" className="cursor-pointer">
+              <circle r="5" fill="#059669" />
+              <circle r="2" fill="#FFFFFF" />
+              <text x="8" y="4" fill="#047857" fontSize="10" fontWeight="700">Visakhapatnam</text>
             </g>
           </svg>
 
-          <p className="mt-2 text-xs text-slate-400 text-center">
-            Click on any city node or choose from the list to view regional infrastructure.
-          </p>
+          {/* Quick Legend underneath */}
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs font-medium text-slate-500">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-orange-500" />
+              <span>HQ & Core Operational</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-blue-600" />
+              <span>Active Regional Hub</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-slate-300 border border-slate-400" />
+              <span>Expansion Corridor</span>
+            </div>
+          </div>
         </div>
 
-        {/* State Information Details Card */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="flex flex-wrap gap-2">
-            {REGION_DATA.map((state) => (
-              <button
-                key={state.id}
-                onClick={() => setSelectedState(state)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  selectedState.id === state.id
-                    ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                }`}
-              >
-                {state.name}
-              </button>
-            ))}
-          </div>
-
-          <div className="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-5">
-            <div className="flex items-center justify-between">
+        {/* Right Column: Region Insight & Branch Directory */}
+        <div className="lg:col-span-5 p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div>
                 <span
-                  className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${
-                    selectedState.status === "Active Network"
-                      ? "bg-orange-500/20 text-orange-400 border border-orange-500/30"
-                      : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                  className={`inline-block text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1 ${
+                    selectedRegion.status === "Operational"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-slate-100 text-slate-600 border border-slate-200"
                   }`}
                 >
-                  {selectedState.status}
+                  {selectedRegion.status === "Operational" ? "Active Operational Grid" : "Strategic Expansion"}
                 </span>
-                <h3 className="text-2xl font-bold text-white mt-1">
-                  {selectedState.name}
-                </h3>
+                <h4 className="text-2xl font-black text-slate-900">
+                  {selectedRegion.name}
+                </h4>
               </div>
-              <Shield className="w-8 h-8 text-orange-500" />
+
+              {selectedRegion.status === "Operational" && (
+                <div className="text-right">
+                  <div className="text-2xl font-black text-orange-600">
+                    {selectedRegion.branchesVerified}+
+                  </div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                    Verified Branches
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-800/80">
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
-                  <Building2 className="w-4 h-4 text-orange-400" />
-                  Branch Footprint
-                </div>
-                <div className="mt-1 text-lg font-bold text-white">
-                  {selectedState.branchesCount}
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
-                  <Users className="w-4 h-4 text-blue-400" />
-                  Distributors
-                </div>
-                <div className="mt-1 text-lg font-bold text-white">
-                  {selectedState.distributors}
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />
+            <div className="py-4 space-y-3 text-xs">
               <div>
-                <div className="text-xs text-slate-400 uppercase font-semibold">Key Regional Center</div>
-                <div className="text-sm font-medium text-slate-200 mt-0.5">
-                  {selectedState.headquartersOrHub}
+                <span className="font-semibold text-slate-700 block mb-1">Key Operational Hubs:</span>
+                <p className="text-slate-600">{selectedRegion.hubCity}</p>
+              </div>
+
+              <div>
+                <span className="font-semibold text-slate-700 block mb-1">Districts Covered:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedRegion.districts.map((d, i) => (
+                    <span key={i} className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[11px]">
+                      {d}
+                    </span>
+                  ))}
                 </div>
+              </div>
+
+              <div>
+                <span className="font-semibold text-slate-700 block mb-1">Service Capabilities:</span>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  {selectedRegion.services.map((s, i) => (
+                    <li key={i} className="flex items-center gap-1.5 text-slate-600 text-[11px]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
 
-            <Link
-              href={`/branches?state=${encodeURIComponent(selectedState.name)}`}
-              className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-semibold text-sm transition-all shadow-lg shadow-orange-600/25"
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-2 flex items-center justify-between">
+                <span>Verified Facilities</span>
+                <span className="text-[10px] font-mono text-slate-400">Showing {filteredBranches.length} locations</span>
+              </h5>
+
+              <div className="max-h-[180px] overflow-y-auto space-y-2 pr-1">
+                {filteredBranches.slice(0, 4).map((b) => (
+                  <div key={b.id} className="p-2.5 rounded-lg border border-slate-100 bg-slate-50/70 hover:bg-orange-50/40 hover:border-orange-200 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-slate-900">{b.name}</div>
+                        <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-3 h-3 text-orange-500" />
+                          <span>{b.city}, {b.district} ({b.state})</span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-white text-slate-600 border border-slate-200">
+                        {b.type}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-xs text-slate-500">
+              Emergency assistance available across all active sectors.
+            </span>
+            <a
+              href="/branches"
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-600 text-white rounded-lg text-xs font-bold hover:bg-orange-700 transition-colors"
             >
-              <span>Explore {selectedState.name} Branch Directory</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+              <span>All Branches</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
       </div>
